@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Virtuale: Misura dell'Area - Corso di Fisica</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier Prime', 'Courier New', monospace;
+            background: 
+                radial-gradient(circle at 15% 20%, rgba(101, 67, 33, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(101, 67, 33, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(139, 90, 43, 0.05) 0%, transparent 60%),
+                linear-gradient(135deg, #f4e4c1 0%, #e8d4b0 25%, #d9bc8c 50%, #e8d4b0 75%, #f4e4c1 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(101, 67, 33, 0.03) 1px, rgba(101, 67, 33, 0.03) 2px),
+                repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(101, 67, 33, 0.02) 1px, rgba(101, 67, 33, 0.02) 2px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(ellipse at 10% 15%, rgba(139, 90, 43, 0.08) 0%, transparent 30%),
+                radial-gradient(ellipse at 90% 85%, rgba(160, 120, 70, 0.06) 0%, transparent 25%),
+                radial-gradient(ellipse at 30% 70%, rgba(139, 90, 43, 0.05) 0%, transparent 20%),
+                radial-gradient(ellipse at 70% 30%, rgba(160, 120, 70, 0.07) 0%, transparent 25%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .gear {
+            position: fixed;
+            color: rgba(139, 90, 43, 0.15);
+            font-size: 120px;
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gear1 { top: 5%; left: 3%; animation-duration: 25s; }
+        .gear2 { top: 60%; right: 5%; font-size: 150px; animation-duration: 30s; animation-direction: reverse; }
+        .gear3 { bottom: 10%; left: 8%; font-size: 90px; animation-duration: 20s; animation-direction: reverse; }
+        .gear4 { top: 30%; right: 15%; font-size: 70px; animation-duration: 18s; }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: linear-gradient(135deg, rgba(232, 212, 176, 0.95) 0%, rgba(217, 188, 140, 0.95) 100%);
+            border: 6px solid #8b5a2b;
+            box-shadow: 
+                0 0 0 2px #654321,
+                0 0 0 4px #8b5a2b,
+                0 20px 50px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 0 100px rgba(139, 90, 43, 0.08);
+            padding: 50px 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .rivet {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: radial-gradient(circle, #8b6914 0%, #5d4610 100%);
+            border-radius: 50%;
+            border: 2px solid #654321;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .rivet::before, .rivet::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 2px;
+            background: #654321;
+        }
+        
+        .rivet::before { transform: translate(-50%, -50%); }
+        .rivet::after { transform: translate(-50%, -50%) rotate(90deg); }
+        
+        .rivet-tl { top: 25px; left: 25px; }
+        .rivet-tr { top: 25px; right: 25px; }
+        .rivet-bl { bottom: 25px; left: 25px; }
+        .rivet-br { bottom: 25px; right: 25px; }
+        
+        .metal-strip {
+            position: absolute;
+            background: linear-gradient(90deg, #8b6914 0%, #b8860b 50%, #8b6914 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        .metal-strip-top { top: 0; left: 0; right: 0; height: 6px; }
+        .metal-strip-bottom { bottom: 0; left: 0; right: 0; height: 6px; }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 4px solid #8b5a2b;
+            box-shadow: 0 2px 0 rgba(139, 90, 43, 0.3);
+        }
+        
+        h1 {
+            font-family: 'IM Fell English', serif;
+            font-size: 2.8em;
+            color: #4a3020;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2), 0 0 20px rgba(139, 90, 43, 0.2);
+            font-style: italic;
+            letter-spacing: 3px;
+        }
+        
+        h1::before { content: '⚙ '; font-style: normal; color: #8b5a2b; }
+        h1::after { content: ' ⚙'; font-style: normal; color: #8b5a2b; }
+        
+        .subtitle {
+            font-size: 1.1em;
+            color: #6d4a2a;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        h2 {
+            font-family: 'IM Fell English', serif;
+            color: #4a3020;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #8b5a2b;
+            padding-bottom: 10px;
+        }
+        
+        .section {
+            background: linear-gradient(135deg, rgba(255, 248, 230, 0.6) 0%, rgba(245, 235, 210, 0.6) 100%);
+            border: 4px solid #8b5a2b;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1), 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .object-display {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(139, 90, 43, 0.1);
+            border-radius: 6px;
+        }
+        
+        .object-name {
+            font-family: 'IM Fell English', serif;
+            font-size: 2em;
+            color: #4a3020;
+            margin-bottom: 15px;
+        }
+        
+        .canvas-container {
+            background: linear-gradient(180deg, rgba(255, 250, 240, 0.9) 0%, rgba(250, 240, 220, 0.9) 100%);
+            border: 3px solid #a0774a;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 400px;
+        }
+        
+        #measureCanvas {
+            border: 2px dashed #8b5a2b;
+            background: white;
+            cursor: crosshair;
+            position: relative;
+        }
+        
+        .ruler-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .ruler-info {
+            background: rgba(255, 248, 230, 0.9);
+            border: 2px solid #8b5a2b;
+            border-radius: 6px;
+            padding: 15px 25px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.2em;
+            color: #4a3020;
+            font-weight: bold;
+        }
+        
+        .instrument-selector {
+            background: linear-gradient(135deg, rgba(232, 212, 176, 0.9) 0%, rgba(217, 188, 140, 0.9) 100%);
+            border: 3px solid #8b5a2b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .instrument-selector h3 {
+            font-family: 'IM Fell English', serif;
+            color: #4a3020;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #8b5a2b;
+            padding-bottom: 10px;
+        }
+        
+        .instrument-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .instrument-card {
+            background: rgba(255, 248, 230, 0.7);
+            border: 3px solid #a0774a;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .instrument-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-color: #8b5a2b;
+        }
+        
+        .instrument-card.active {
+            background: rgba(76, 175, 80, 0.2);
+            border: 3px solid #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+        
+        .instrument-card.active::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 1.5em;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .instrument-icon {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .instrument-name {
+            font-family: 'IM Fell English', serif;
+            font-size: 1.1em;
+            color: #4a3020;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .instrument-precision {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9em;
+            color: #6d4a2a;
+            text-align: center;
+        }
+        
+        .reset-controls {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid #f44336;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .reset-controls h3 {
+            font-family: 'IM Fell English', serif;
+            color: #c62828;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .reset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        
+        .reset-btn {
+            font-family: 'Special Elite', monospace;
+            padding: 12px 20px;
+            font-size: 0.95em;
+            background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+            border: 3px solid #b71c1c;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 3px 0 #8b0000, 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 #8b0000, 0 7px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .reset-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #8b0000, 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .measurement-box {
+            background: rgba(255, 248, 230, 0.5);
+            border: 2px solid #a0774a;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .measurement-box h3 {
+            font-family: 'IM Fell English', serif;
+            color: #4a3020;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #8b5a2b;
+            padding-bottom: 8px;
+        }
+        
+        .measurement-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .measurement-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .measurement-row label {
+            min-width: 120px;
+            color: #5d4610;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            flex: 1;
+            padding: 12px 15px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 1em;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 240, 230, 0.9) 100%);
+            border: 3px solid #8b5a2b;
+            border-radius: 6px;
+            color: #4a3020;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #b8860b;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(184, 134, 11, 0.3);
+        }
+        
+        .unit {
+            color: #8b5a2b;
+            font-weight: bold;
+        }
+        
+        button {
+            font-family: 'Special Elite', monospace;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #b8860b 0%, #8b6914 100%);
+            border: 4px solid #8b5a2b;
+            border-radius: 8px;
+            color: #fff8e7;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            box-shadow: 
+                0 4px 0 #654321,
+                0 6px 15px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+            position: relative;
+            top: 0;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #d4a520 0%, #b8860b 100%);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 0 #654321,
+                0 8px 20px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 2px 0 #654321,
+                0 3px 10px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        button:disabled {
+            background: linear-gradient(135deg, #a0774a 0%, #8b5a2b 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(139, 90, 43, 0.15);
+            border: 2px solid #8b5a2b;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .results-section.show {
+            display: block;
+        }
+        
+        .result-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 248, 230, 0.8);
+            border-left: 4px solid #8b5a2b;
+            border-radius: 4px;
+        }
+        
+        .result-label {
+            font-weight: bold;
+            color: #4a3020;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.3em;
+            color: #5d4610;
+        }
+        
+        .correct {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .incorrect {
+            color: #c62828;
+            font-weight: bold;
+        }
+        
+        .message {
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .message.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 3px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .message.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 3px solid #f44336;
+            color: #c62828;
+        }
+        
+        .info-box {
+            background: rgba(255, 200, 0, 0.15);
+            border: 2px solid #d4a520;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #4a3020;
+        }
+        
+        .info-box strong {
+            color: #8b5a2b;
+        }
+        
+        /* Modale per salvare misure */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, rgba(232, 212, 176, 0.98) 0%, rgba(217, 188, 140, 0.98) 100%);
+            border: 6px solid #8b5a2b;
+            border-radius: 12px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 
+                0 0 0 2px #654321,
+                0 20px 60px rgba(0, 0, 0, 0.6);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #8b5a2b;
+        }
+        
+        .modal-header h3 {
+            font-family: 'IM Fell English', serif;
+            font-size: 1.8em;
+            color: #4a3020;
+            margin: 0;
+        }
+        
+        .modal-measure-display {
+            background: rgba(139, 90, 43, 0.2);
+            border: 3px solid #8b5a2b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .modal-measure-display .label {
+            font-size: 0.9em;
+            color: #6d4a2a;
+            margin-bottom: 8px;
+        }
+        
+        .modal-measure-display .value {
+            font-family: 'Courier Prime', monospace;
+            font-size: 2em;
+            font-weight: bold;
+            color: #4a3020;
+        }
+        
+        .modal-section {
+            margin: 25px 0;
+        }
+        
+        .modal-section-title {
+            font-family: 'IM Fell English', serif;
+            font-size: 1.2em;
+            color: #4a3020;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .modal-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-button {
+            font-family: 'Special Elite', monospace;
+            padding: 15px 10px;
+            font-size: 1em;
+            background: linear-gradient(135deg, #b8860b 0%, #8b6914 100%);
+            border: 3px solid #8b5a2b;
+            border-radius: 8px;
+            color: #fff8e7;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            box-shadow: 
+                0 3px 0 #654321,
+                0 5px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+            position: relative;
+            top: 0;
+        }
+        
+        .modal-button:hover {
+            background: linear-gradient(135deg, #d4a520 0%, #b8860b 100%);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 5px 0 #654321,
+                0 7px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .modal-button:active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 1px 0 #654321,
+                0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-button.filled {
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            border-color: #2e7d32;
+        }
+        
+        .modal-button.filled::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.8em;
+            color: white;
+        }
+        
+        .modal-cancel {
+            width: 100%;
+            font-family: 'Special Elite', monospace;
+            padding: 15px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #a0774a 0%, #8b5a2b 100%);
+            border: 3px solid #654321;
+            border-radius: 8px;
+            color: #fff8e7;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+        
+        .modal-cancel:hover {
+            background: linear-gradient(135deg, #8b5a2b 0%, #654321 100%);
+        }
+        
+        @media (max-width: 1024px) {
+            .measurements-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px 15px;
+                margin: 20px auto;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .gear {
+                font-size: 80px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
+            
+            .modal-buttons-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+            }
+            
+            .modal-button {
+                padding: 12px 5px;
+                font-size: 0.9em;
+            }
+            
+            .instrument-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .reset-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ingranaggi animati -->
+    <div class="gear gear1">⚙</div>
+    <div class="gear gear2">⚙</div>
+    <div class="gear gear3">⚙</div>
+    <div class="gear gear4">⚙</div>
+    
+    <div class="container">
+        <!-- Rivetti decorativi -->
+        <div class="rivet rivet-tl"></div>
+        <div class="rivet rivet-tr"></div>
+        <div class="rivet rivet-bl"></div>
+        <div class="rivet rivet-br"></div>
+        
+        <!-- Strisce metalliche -->
+        <div class="metal-strip metal-strip-top"></div>
+        <div class="metal-strip metal-strip-bottom"></div>
+        
+        <!-- Header -->
+        <header>
+            <h1>Laboratorio Virtuale</h1>
+            <div class="subtitle">I.C. "C.Puddu", Corso di Fisica - prof. El Basri</div>
+            <div class="subtitle">Esperimento #2: Misura dell'Area con Cifre Significative</div>
+        </header>
+        
+        <!-- Contenuto principale -->
+        <div class="section">
+            <div class="info-box">
+                <strong>📏 Istruzioni:</strong><br>
+                1️⃣ <strong>Misura l'oggetto:</strong> Clicca e trascina sul canvas per misurare le dimensioni dell'oggetto con il righello virtuale.<br>
+                2️⃣ <strong>Ripeti 5 volte:</strong> Effettua 5 misurazioni per la larghezza e 5 per l'altezza (prova a misurare punti leggermente diversi ogni volta).<br>
+                3️⃣ <strong>Calcola il Valore Attendibile (Va):</strong> Fai la media delle tue 5 misure per ciascuna dimensione.<br>
+                4️⃣ <strong>Calcola l'Area:</strong> Moltiplica i due Va e arrotonda rispettando le cifre significative!
+            </div>
+            
+            <div class="object-display">
+                <div class="object-name" id="objectName">Caricamento...</div>
+                <div class="canvas-container">
+                    <canvas id="measureCanvas" width="600" height="400"></canvas>
+                    <div class="ruler-controls">
+                        <div class="ruler-info" id="rulerInfo">📏 Clicca e trascina sul canvas per misurare</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Selettore Strumento di Misura -->
+            <div class="instrument-selector">
+                <h3>🔧 Seleziona lo Strumento di Misura</h3>
+                <div class="instrument-options">
+                    <div class="instrument-card active" onclick="selectInstrument('metro')" id="inst-metro">
+                        <div class="instrument-icon">📏</div>
+                        <div class="instrument-name">Metro a Nastro</div>
+                        <div class="instrument-precision">Precisione: ± 1 mm (3 decimali)</div>
+                    </div>
+                    <div class="instrument-card" onclick="selectInstrument('calibro')" id="inst-calibro">
+                        <div class="instrument-icon">🔬</div>
+                        <div class="instrument-name">Calibro Ventesimale</div>
+                        <div class="instrument-precision">Precisione: ± 0.05 mm (5 decimali)</div>
+                    </div>
+                    <div class="instrument-card" onclick="selectInstrument('righello')" id="inst-righello">
+                        <div class="instrument-icon">📐</div>
+                        <div class="instrument-name">Righello Scolastico</div>
+                        <div class="instrument-precision">Precisione: ± 1 cm (2 decimali)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controlli Reset Misure -->
+            <div class="reset-controls">
+                <h3>🗑️ Cancella Misure</h3>
+                <div class="reset-buttons">
+                    <button class="reset-btn" onclick="resetMeasurements(1, 'all')">🧹 Cancella tutte le misure di Larghezza</button>
+                    <button class="reset-btn" onclick="resetMeasurements(2, 'all')">🧹 Cancella tutte le misure di Altezza</button>
+                    <button class="reset-btn" onclick="resetMeasurements(0, 'all')">🔥 Cancella TUTTE le misure</button>
+                </div>
+            </div>
+            
+            <div class="measurements-grid">
+                <!-- Dimensione 1 -->
+                <div class="measurement-box">
+                    <h3>📐 Dimensione 1 (Larghezza)</h3>
+                    <div class="measurement-inputs">
+                        <div class="measurement-row">
+                            <label>Misura 1:</label>
+                            <input type="number" step="0.001" id="dim1_m1" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 2:</label>
+                            <input type="number" step="0.001" id="dim1_m2" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 3:</label>
+                            <input type="number" step="0.001" id="dim1_m3" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 4:</label>
+                            <input type="number" step="0.001" id="dim1_m4" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 5:</label>
+                            <input type="number" step="0.001" id="dim1_m5" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Valore Attendibile:</label>
+                            <input type="number" step="0.001" id="dim1_va" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimensione 2 -->
+                <div class="measurement-box">
+                    <h3>📐 Dimensione 2 (Altezza)</h3>
+                    <div class="measurement-inputs">
+                        <div class="measurement-row">
+                            <label>Misura 1:</label>
+                            <input type="number" step="0.001" id="dim2_m1" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 2:</label>
+                            <input type="number" step="0.001" id="dim2_m2" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 3:</label>
+                            <input type="number" step="0.001" id="dim2_m3" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 4:</label>
+                            <input type="number" step="0.001" id="dim2_m4" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Misura 5:</label>
+                            <input type="number" step="0.001" id="dim2_m5" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                        <div class="measurement-row">
+                            <label>Valore Attendibile:</label>
+                            <input type="number" step="0.001" id="dim2_va" placeholder="0.000">
+                            <span class="unit">m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calcolo Area -->
+            <div class="measurement-box" style="margin-top: 30px;">
+                <h3>📊 Calcolo dell'Area</h3>
+                <div class="measurement-row" style="margin-top: 15px;">
+                    <label>Area calcolata:</label>
+                    <input type="number" step="0.0001" id="area_calculated" placeholder="0.0000">
+                    <span class="unit">m²</span>
+                </div>
+            </div>
+            
+            <!-- Pulsanti -->
+            <div class="button-group">
+                <button onclick="checkResults()">🔍 Verifica Risultati</button>
+            </div>
+            
+            <!-- Risultati -->
+            <div class="results-section" id="resultsSection">
+                <h2>Risultati della Verifica</h2>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+        
+        <!-- Pulsante Nuovo Esercizio -->
+        <div class="button-group">
+            <button onclick="generateNewExercise()">🔄 Genera Nuovo Esercizio</button>
+        </div>
+    </div>
+    
+    <!-- Modale per salvare misure -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📏 Salva la Misura</h3>
+            </div>
+            
+            <div class="modal-measure-display">
+                <div class="label">Hai misurato:</div>
+                <div class="value" id="modalMeasureValue">0.000 m</div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">📐 Dimensione 1 - Larghezza</div>
+                <div class="modal-buttons-grid">
+                    <button class="modal-button" onclick="saveMeasure(1, 1)" id="btn_1_1">M1</button>
+                    <button class="modal-button" onclick="saveMeasure(1, 2)" id="btn_1_2">M2</button>
+                    <button class="modal-button" onclick="saveMeasure(1, 3)" id="btn_1_3">M3</button>
+                    <button class="modal-button" onclick="saveMeasure(1, 4)" id="btn_1_4">M4</button>
+                    <button class="modal-button" onclick="saveMeasure(1, 5)" id="btn_1_5">M5</button>
+                </div>
+            </div>
+            
+            <div class="modal-section">
+                <div class="modal-section-title">📐 Dimensione 2 - Altezza</div>
+                <div class="modal-buttons-grid">
+                    <button class="modal-button" onclick="saveMeasure(2, 1)" id="btn_2_1">M1</button>
+                    <button class="modal-button" onclick="saveMeasure(2, 2)" id="btn_2_2">M2</button>
+                    <button class="modal-button" onclick="saveMeasure(2, 3)" id="btn_2_3">M3</button>
+                    <button class="modal-button" onclick="saveMeasure(2, 4)" id="btn_2_4">M4</button>
+                    <button class="modal-button" onclick="saveMeasure(2, 5)" id="btn_2_5">M5</button>
+                </div>
+            </div>
+            
+            <button class="modal-cancel" onclick="closeModal()">❌ Annulla</button>
+        </div>
+    </div>
+    
+    <script>
+        // Dati dell'esercizio corrente
+        let currentExercise = null;
+        
+        // Stato del righello virtuale
+        let ruler = {
+            active: false,
+            startX: 0,
+            startY: 0,
+            endX: 0,
+            endY: 0
+        };
+        
+        // Strumenti di misura disponibili
+        const instruments = {
+            metro: {
+                name: 'Metro a Nastro',
+                icon: '📏',
+                precision: 3,
+                error: 0.001, // ±1mm
+                description: '± 1 mm'
+            },
+            calibro: {
+                name: 'Calibro Ventesimale',
+                icon: '🔬',
+                precision: 5,
+                error: 0.00005, // ±0.05mm
+                description: '± 0.05 mm'
+            },
+            righello: {
+                name: 'Righello Scolastico',
+                icon: '📐',
+                precision: 2,
+                error: 0.01, // ±1cm
+                description: '± 1 cm'
+            }
+        };
+        
+        // Strumento attualmente selezionato
+        let currentInstrument = 'metro';
+        
+        // Scala per convertire pixel in metri
+        let pixelToMeter = 1;
+        
+        // Oggetti rettangolari disponibili
+        const objects = [
+            { name: "Libro di Fisica", icon: "📖" },
+            { name: "Quaderno", icon: "📓" },
+            { name: "Tavolo da Laboratorio", icon: "🪑" },
+            { name: "Lavagna", icon: "🖼️" },
+            { name: "Foglio A4", icon: "📄" },
+            { name: "Porta del Laboratorio", icon: "🚪" },
+            { name: "Finestra", icon: "🪟" },
+            { name: "Schermo del Computer", icon: "🖥️" },
+            { name: "Specchio", icon: "🪞" },
+            { name: "Cornice", icon: "🖼️" }
+        ];
+        
+        // Funzione per generare misure casuali con piccola variazione
+        function generateMeasurements(trueValue, precision) {
+            const measurements = [];
+            const variation = Math.pow(10, -precision);
+            
+            for (let i = 0; i < 5; i++) {
+                const randomVariation = (Math.random() - 0.5) * 2 * variation;
+                const measurement = trueValue + randomVariation;
+                measurements.push(parseFloat(measurement.toFixed(precision)));
+            }
+            
+            return measurements;
+        }
+        
+        // Funzione per contare cifre decimali
+        function countDecimals(num) {
+            const str = num.toString();
+            if (str.includes('.')) {
+                return str.split('.')[1].length;
+            }
+            return 0;
+        }
+        
+        // Funzione per contare cifre significative
+        function countSignificantFigures(num) {
+            // Rimuovi leading zeros e il punto decimale per contare le cifre significative
+            const str = num.toString().replace(/^0+/, '').replace('.', '');
+            return str.length;
+        }
+        
+        // Funzione per arrotondare con cifre significative
+        function roundToSignificantFigures(num, sigFigs) {
+            if (num === 0) return 0;
+            const magnitude = Math.floor(Math.log10(Math.abs(num)));
+            const factor = Math.pow(10, sigFigs - magnitude - 1);
+            return Math.round(num * factor) / factor;
+        }
+        
+        // Funzione per generare un nuovo esercizio
+        function generateNewExercise() {
+            // Seleziona oggetto casuale
+            const obj = objects[Math.floor(Math.random() * objects.length)];
+            
+            // Genera dimensioni reali casuali (in metri)
+            const dim1_true = parseFloat((Math.random() * (3 - 0.1) + 0.1).toFixed(3));
+            const dim2_true = parseFloat((Math.random() * (2 - 0.05) + 0.05).toFixed(3));
+            
+            // Determina precisione (2 o 3 cifre decimali)
+            const precision = Math.random() > 0.5 ? 2 : 3;
+            
+            // Genera misurazioni con piccole variazioni
+            const dim1_measurements = generateMeasurements(dim1_true, precision);
+            const dim2_measurements = generateMeasurements(dim2_true, precision);
+            
+            // Calcola i valori attendibili corretti
+            const dim1_va_correct = parseFloat((dim1_measurements.reduce((a, b) => a + b) / 5).toFixed(precision));
+            const dim2_va_correct = parseFloat((dim2_measurements.reduce((a, b) => a + b) / 5).toFixed(precision));
+            
+            // Calcola l'area corretta rispettando le cifre significative
+            const area_raw = dim1_va_correct * dim2_va_correct;
+            const minSigFigs = Math.min(
+                countSignificantFigures(dim1_va_correct),
+                countSignificantFigures(dim2_va_correct)
+            );
+            const area_correct = roundToSignificantFigures(area_raw, minSigFigs);
+            
+            currentExercise = {
+                object: obj,
+                dim1: {
+                    true: dim1_true,
+                    measurements: dim1_measurements,
+                    va: dim1_va_correct,
+                    precision: precision
+                },
+                dim2: {
+                    true: dim2_true,
+                    measurements: dim2_measurements,
+                    va: dim2_va_correct,
+                    precision: precision
+                },
+                area: {
+                    correct: area_correct,
+                    sigFigs: minSigFigs
+                },
+                rectBounds: null // Memorizza i limiti del rettangolo
+            };
+            
+            // Resetta l'interfaccia
+            resetInterface();
+            
+            // Disegna l'oggetto
+            drawObject();
+        }
+        
+        // Funzione per disegnare l'oggetto sul canvas
+        function drawObject() {
+            const canvas = document.getElementById('measureCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Pulisci canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calcola scale per visualizzazione (usa più spazio del canvas)
+            const maxDim = Math.max(currentExercise.dim1.true, currentExercise.dim2.true);
+            const scale = 300 / maxDim;
+            pixelToMeter = 1 / scale;
+            
+            const width = currentExercise.dim1.true * scale;
+            const height = currentExercise.dim2.true * scale;
+            
+            const x = (canvas.width - width) / 2;
+            const y = (canvas.height - height) / 2;
+            
+            // Memorizza i limiti del rettangolo
+            currentExercise.rectBounds = { x, y, width, height };
+            
+            // Disegna rettangolo con gradiente bronzo
+            const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+            gradient.addColorStop(0, '#d4a520');
+            gradient.addColorStop(0.5, '#b8860b');
+            gradient.addColorStop(1, '#8b6914');
+            
+            ctx.fillStyle = gradient;
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 4;
+            
+            ctx.fillRect(x, y, width, height);
+            ctx.strokeRect(x, y, width, height);
+            
+            // Aggiungi texture
+            ctx.strokeStyle = 'rgba(101, 67, 33, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x + i, y);
+                ctx.lineTo(x + i, y + height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < height; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, y + i);
+                ctx.lineTo(x + width, y + i);
+                ctx.stroke();
+            }
+            
+            // Aggiungi ombre per profondità
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(x, y, width, height);
+            ctx.shadowColor = 'transparent';
+            
+            // Etichette
+            ctx.fillStyle = '#4a3020';
+            ctx.font = 'bold 16px IM Fell English';
+            ctx.textAlign = 'center';
+            ctx.fillText('← Misura la Larghezza →', canvas.width / 2, y - 15);
+            
+            ctx.save();
+            ctx.translate(x - 30, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('← Misura l\'Altezza →', 0, 0);
+            ctx.restore();
+            
+            // Aggiorna nome oggetto
+            document.getElementById('objectName').textContent = 
+                currentExercise.object.icon + ' ' + currentExercise.object.name;
+            
+            // Ridisegna il righello se attivo
+            if (ruler.active) {
+                drawRuler(ctx);
+            }
+        }
+        
+        // Funzione per disegnare il righello
+        function drawRuler(ctx) {
+            if (!ruler.startX && !ruler.startY) return;
+            
+            const canvas = document.getElementById('measureCanvas');
+            
+            // Ridisegna l'oggetto per pulire il vecchio righello
+            drawObject();
+            
+            ctx = canvas.getContext('2d');
+            
+            // Disegna linea del righello
+            ctx.strokeStyle = '#c41e3a';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(ruler.startX, ruler.startY);
+            ctx.lineTo(ruler.endX, ruler.endY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Disegna punti di inizio e fine
+            ctx.fillStyle = '#c41e3a';
+            ctx.beginPath();
+            ctx.arc(ruler.startX, ruler.startY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(ruler.endX, ruler.endY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Calcola distanza in pixel e metri
+            const dx = ruler.endX - ruler.startX;
+            const dy = ruler.endY - ruler.startY;
+            const distancePixels = Math.sqrt(dx * dx + dy * dy);
+            const distanceMeters = distancePixels * pixelToMeter;
+            
+            // Mostra misura
+            if (distancePixels > 10) {
+                const midX = (ruler.startX + ruler.endX) / 2;
+                const midY = (ruler.startY + ruler.endY) / 2;
+                
+                // Applica la precisione dello strumento per la visualizzazione
+                const instrument = instruments[currentInstrument];
+                const displayValue = distanceMeters.toFixed(instrument.precision);
+                
+                ctx.fillStyle = 'rgba(255, 248, 230, 0.95)';
+                ctx.strokeStyle = '#8b5a2b';
+                ctx.lineWidth = 2;
+                const text = displayValue + ' m';
+                ctx.font = 'bold 18px Courier Prime';
+                const metrics = ctx.measureText(text);
+                const padding = 8;
+                
+                ctx.fillRect(midX - metrics.width / 2 - padding, midY - 15, metrics.width + padding * 2, 30);
+                ctx.strokeRect(midX - metrics.width / 2 - padding, midY - 15, metrics.width + padding * 2, 30);
+                
+                ctx.fillStyle = '#4a3020';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, midX, midY);
+                
+                // Aggiorna info
+                document.getElementById('rulerInfo').textContent = 
+                    `${instrument.icon} Misura: ${displayValue} m`;
+            }
+        }
+        
+        // Event listeners per il canvas (mouse e touch)
+        const canvas = document.getElementById('measureCanvas');
+        
+        // Variabile per memorizzare la misura corrente da salvare
+        let pendingMeasure = null;
+        
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            ruler.active = true;
+            ruler.startX = e.clientX - rect.left;
+            ruler.startY = e.clientY - rect.top;
+            ruler.endX = ruler.startX;
+            ruler.endY = ruler.startY;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (ruler.active) {
+                const rect = canvas.getBoundingClientRect();
+                ruler.endX = e.clientX - rect.left;
+                ruler.endY = e.clientY - rect.top;
+                
+                const ctx = canvas.getContext('2d');
+                drawRuler(ctx);
+            }
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (ruler.active) {
+                const rect = canvas.getBoundingClientRect();
+                ruler.endX = e.clientX - rect.left;
+                ruler.endY = e.clientY - rect.top;
+                
+                // Calcola la misura finale
+                const dx = ruler.endX - ruler.startX;
+                const dy = ruler.endY - ruler.startY;
+                const distancePixels = Math.sqrt(dx * dx + dy * dy);
+                const distanceMeters = distancePixels * pixelToMeter;
+                
+                if (distancePixels > 10) {
+                    // Applica la precisione e l'errore dello strumento
+                    const instrument = instruments[currentInstrument];
+                    
+                    // Aggiungi un piccolo errore casuale basato sulla precisione dello strumento
+                    const randomError = (Math.random() - 0.5) * 2 * instrument.error;
+                    const measuredValue = distanceMeters + randomError;
+                    
+                    // Arrotonda alla precisione dello strumento
+                    const finalValue = measuredValue.toFixed(instrument.precision);
+                    
+                    // Mostra il modale invece del prompt
+                    showModal(finalValue);
+                }
+                
+                ruler.active = false;
+            }
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            if (ruler.active) {
+                ruler.active = false;
+                drawObject();
+            }
+        });
+        
+        // Touch events per mobile/tablet
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            ruler.active = true;
+            ruler.startX = touch.clientX - rect.left;
+            ruler.startY = touch.clientY - rect.top;
+            ruler.endX = ruler.startX;
+            ruler.endY = ruler.startY;
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (ruler.active) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                ruler.endX = touch.clientX - rect.left;
+                ruler.endY = touch.clientY - rect.top;
+                
+                const ctx = canvas.getContext('2d');
+                drawRuler(ctx);
+            }
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (ruler.active) {
+                // Calcola la misura finale
+                const dx = ruler.endX - ruler.startX;
+                const dy = ruler.endY - ruler.startY;
+                const distancePixels = Math.sqrt(dx * dx + dy * dy);
+                const distanceMeters = distancePixels * pixelToMeter;
+                
+                if (distancePixels > 10) {
+                    // Applica la precisione e l'errore dello strumento
+                    const instrument = instruments[currentInstrument];
+                    
+                    // Aggiungi un piccolo errore casuale basato sulla precisione dello strumento
+                    const randomError = (Math.random() - 0.5) * 2 * instrument.error;
+                    const measuredValue = distanceMeters + randomError;
+                    
+                    // Arrotonda alla precisione dello strumento
+                    const finalValue = measuredValue.toFixed(instrument.precision);
+                    
+                    // Mostra il modale invece del prompt
+                    showModal(finalValue);
+                }
+                
+                ruler.active = false;
+            }
+        });
+        
+        // Funzioni per gestire il modale
+        function showModal(measureValue) {
+            pendingMeasure = measureValue;
+            const instrument = instruments[currentInstrument];
+            document.getElementById('modalMeasureValue').textContent = 
+                measureValue + ' m ' + instrument.icon;
+            document.getElementById('modalOverlay').classList.add('show');
+            
+            // Aggiorna lo stato dei bottoni (mostra quali campi sono già riempiti)
+            updateModalButtons();
+        }
+        
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            pendingMeasure = null;
+            
+            // Pulisci il righello
+            drawObject();
+        }
+        
+        function updateModalButtons() {
+            // Aggiorna lo stato visivo dei bottoni in base ai campi riempiti
+            for (let dim = 1; dim <= 2; dim++) {
+                for (let measure = 1; measure <= 5; measure++) {
+                    const inputId = `dim${dim}_m${measure}`;
+                    const buttonId = `btn_${dim}_${measure}`;
+                    const input = document.getElementById(inputId);
+                    const button = document.getElementById(buttonId);
+                    
+                    if (input && button) {
+                        if (input.value && input.value.trim() !== '') {
+                            button.classList.add('filled');
+                        } else {
+                            button.classList.remove('filled');
+                        }
+                    }
+                }
+            }
+        }
+        
+        function saveMeasure(dimension, measureNumber) {
+            if (pendingMeasure === null) return;
+            
+            const inputId = `dim${dimension}_m${measureNumber}`;
+            const input = document.getElementById(inputId);
+            
+            if (input) {
+                input.value = pendingMeasure;
+                
+                // Feedback visivo
+                input.style.background = 'rgba(76, 175, 80, 0.3)';
+                setTimeout(() => {
+                    input.style.background = '';
+                }, 800);
+                
+                // Chiudi il modale
+                closeModal();
+            }
+        }
+        
+        // Funzione per selezionare lo strumento di misura
+        function selectInstrument(instrumentKey) {
+            currentInstrument = instrumentKey;
+            
+            // Aggiorna UI
+            document.querySelectorAll('.instrument-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.getElementById('inst-' + instrumentKey).classList.add('active');
+            
+            // Aggiorna info
+            const instrument = instruments[instrumentKey];
+            document.getElementById('rulerInfo').textContent = 
+                `${instrument.icon} ${instrument.name} - ${instrument.description}`;
+        }
+        
+        // Funzione per resettare le misure
+        function resetMeasurements(dimension, scope) {
+            let message = '';
+            
+            if (dimension === 0) {
+                message = 'Sei sicuro di voler cancellare TUTTE le misure (Larghezza e Altezza)?';
+            } else if (dimension === 1) {
+                message = 'Sei sicuro di voler cancellare tutte le misure di Larghezza?';
+            } else if (dimension === 2) {
+                message = 'Sei sicuro di voler cancellare tutte le misure di Altezza?';
+            }
+            
+            if (!confirm(message)) {
+                return;
+            }
+            
+            // Cancella i campi
+            if (dimension === 0) {
+                // Cancella tutto
+                for (let dim = 1; dim <= 2; dim++) {
+                    for (let m = 1; m <= 5; m++) {
+                        const inputId = `dim${dim}_m${m}`;
+                        const input = document.getElementById(inputId);
+                        if (input) input.value = '';
+                    }
+                    const vaInput = document.getElementById(`dim${dim}_va`);
+                    if (vaInput) vaInput.value = '';
+                }
+                const areaInput = document.getElementById('area_calculated');
+                if (areaInput) areaInput.value = '';
+            } else {
+                // Cancella solo una dimensione
+                for (let m = 1; m <= 5; m++) {
+                    const inputId = `dim${dimension}_m${m}`;
+                    const input = document.getElementById(inputId);
+                    if (input) input.value = '';
+                }
+                const vaInput = document.getElementById(`dim${dimension}_va`);
+                if (vaInput) vaInput.value = '';
+            }
+            
+            // Feedback
+            alert('✓ Misure cancellate!');
+        }
+        
+        // Chiudi modale cliccando sull'overlay
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'modalOverlay') {
+                closeModal();
+            }
+        });
+        
+        // Funzione per resettare l'interfaccia
+        function resetInterface() {
+            // Reset tutti gli input
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.value = '');
+            
+            // Nascondi risultati
+            document.getElementById('resultsSection').classList.remove('show');
+            
+            // Reset righello
+            ruler.active = false;
+            ruler.startX = 0;
+            ruler.startY = 0;
+            ruler.endX = 0;
+            ruler.endY = 0;
+            
+            // Reset strumento a metro (default)
+            selectInstrument('metro');
+            
+            // Reset info
+            const instrument = instruments[currentInstrument];
+            document.getElementById('rulerInfo').textContent = 
+                `${instrument.icon} ${instrument.name} - ${instrument.description}`;
+        }
+        
+        // Funzione per verificare i risultati
+        function checkResults() {
+            // Raccogli tutti i valori inseriti
+            const dim1_measurements = [];
+            const dim2_measurements = [];
+            
+            for (let i = 1; i <= 5; i++) {
+                const val1 = parseFloat(document.getElementById(`dim1_m${i}`).value);
+                const val2 = parseFloat(document.getElementById(`dim2_m${i}`).value);
+                
+                if (isNaN(val1) || isNaN(val2)) {
+                    alert('⚠️ Per favore, effettua tutte le 5 misurazioni per entrambe le dimensioni!');
+                    return;
+                }
+                
+                dim1_measurements.push(val1);
+                dim2_measurements.push(val2);
+            }
+            
+            const dim1_va_user = parseFloat(document.getElementById('dim1_va').value);
+            const dim2_va_user = parseFloat(document.getElementById('dim2_va').value);
+            const area_user = parseFloat(document.getElementById('area_calculated').value);
+            
+            if (isNaN(dim1_va_user) || isNaN(dim2_va_user) || isNaN(area_user)) {
+                alert('⚠️ Per favore, inserisci i Valori Attendibili e l\'Area!');
+                return;
+            }
+            
+            // Calcola VA corretti dalle misure dell'utente
+            const dim1_va_from_measures = parseFloat(
+                (dim1_measurements.reduce((a, b) => a + b) / 5).toFixed(currentExercise.dim1.precision)
+            );
+            const dim2_va_from_measures = parseFloat(
+                (dim2_measurements.reduce((a, b) => a + b) / 5).toFixed(currentExercise.dim2.precision)
+            );
+            
+            // Verifica VA
+            const dim1_va_correct = Math.abs(dim1_va_user - dim1_va_from_measures) < 0.001;
+            const dim2_va_correct = Math.abs(dim2_va_user - dim2_va_from_measures) < 0.001;
+            
+            // Verifica area (considera cifre significative)
+            const area_raw = dim1_va_user * dim2_va_user;
+            const minSigFigs = Math.min(
+                countSignificantFigures(dim1_va_user),
+                countSignificantFigures(dim2_va_user)
+            );
+            const area_correct_rounded = roundToSignificantFigures(area_raw, minSigFigs);
+            const area_is_correct = Math.abs(area_user - area_correct_rounded) < 0.0001;
+            
+            // Calcola accuratezza delle misure rispetto ai valori "veri"
+            const dim1_accuracy = Math.abs(dim1_va_user - currentExercise.dim1.true) / currentExercise.dim1.true * 100;
+            const dim2_accuracy = Math.abs(dim2_va_user - currentExercise.dim2.true) / currentExercise.dim2.true * 100;
+            
+            // Genera HTML risultati
+            let html = '';
+            
+            // Risultati Dimensione 1
+            html += '<div class="result-item">';
+            html += '<div class="result-label">📐 Valore Attendibile Dimensione 1 (Larghezza):</div>';
+            html += `<div class="result-value ${dim1_va_correct ? 'correct' : 'incorrect'}">`;
+            html += `Tuo: ${dim1_va_user.toFixed(3)} m | `;
+            html += `Corretto: ${dim1_va_from_measures.toFixed(3)} m `;
+            html += dim1_va_correct ? '✓' : '✗';
+            html += '</div>';
+            html += `<div style="margin-top: 8px; font-size: 0.9em; color: #6d4a2a;">`;
+            html += `Valore reale: ${currentExercise.dim1.true.toFixed(3)} m | `;
+            html += `Errore: ${dim1_accuracy.toFixed(2)}%`;
+            html += '</div></div>';
+            
+            // Risultati Dimensione 2
+            html += '<div class="result-item">';
+            html += '<div class="result-label">📐 Valore Attendibile Dimensione 2 (Altezza):</div>';
+            html += `<div class="result-value ${dim2_va_correct ? 'correct' : 'incorrect'}">`;
+            html += `Tuo: ${dim2_va_user.toFixed(3)} m | `;
+            html += `Corretto: ${dim2_va_from_measures.toFixed(3)} m `;
+            html += dim2_va_correct ? '✓' : '✗';
+            html += '</div>';
+            html += `<div style="margin-top: 8px; font-size: 0.9em; color: #6d4a2a;">`;
+            html += `Valore reale: ${currentExercise.dim2.true.toFixed(3)} m | `;
+            html += `Errore: ${dim2_accuracy.toFixed(2)}%`;
+            html += '</div></div>';
+            
+            // Risultati Area
+            html += '<div class="result-item">';
+            html += '<div class="result-label">📊 Area (con cifre significative corrette):</div>';
+            html += `<div class="result-value ${area_is_correct ? 'correct' : 'incorrect'}">`;
+            html += `Tuo: ${area_user} m² | `;
+            html += `Corretto: ${area_correct_rounded} m² `;
+            html += area_is_correct ? '✓' : '✗';
+            html += '</div>';
+            html += `<div style="margin-top: 10px; font-size: 0.9em; color: #6d4a2a;">`;
+            html += `<strong>Spiegazione:</strong> ${dim1_va_user.toFixed(3)} × ${dim2_va_user.toFixed(3)} = ${area_raw.toFixed(6)} m²<br>`;
+            html += `Con ${minSigFigs} cifre significative → ${area_correct_rounded} m²`;
+            html += '</div></div>';
+            
+            // Messaggio finale
+            if (dim1_va_correct && dim2_va_correct && area_is_correct) {
+                html += '<div class="message success">🎉 Eccellente! Hai misurato accuratamente e applicato correttamente le regole delle cifre significative!</div>';
+            } else {
+                html += '<div class="message error">❌ Ricontrolla i calcoli e le regole delle cifre significative.</div>';
+            }
+            
+            document.getElementById('resultsContent').innerHTML = html;
+            document.getElementById('resultsSection').classList.add('show');
+        }
+        
+        // Inizializza al caricamento
+        window.onload = function() {
+            generateNewExercise();
+        };
+    </script>
+</body>
+</html>
