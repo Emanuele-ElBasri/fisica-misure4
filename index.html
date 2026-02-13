@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Virtuale: Misura dell'Area - Corso di Fisica</title>
+    <title>Laboratorio Virtuale: Misura dell'Area</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap');
         
@@ -795,7 +795,7 @@
         <!-- Contenuto principale -->
         <div class="section">
             <div class="info-box">
-                <strong>📏 Istruzioni:</strong><br>
+                <strong>🚧 Istruzioni:</strong><br>
                 1️⃣ <strong>Misura l'oggetto:</strong> Clicca e trascina sul canvas per misurare le dimensioni dell'oggetto con il righello virtuale.<br>
                 2️⃣ <strong>Ripeti 5 volte:</strong> Effettua 5 misurazioni per la larghezza e 5 per l'altezza (prova a misurare punti leggermente diversi ogni volta).<br>
                 3️⃣ <strong>Calcola il Valore Attendibile (Va):</strong> Fai la media delle tue 5 misure per ciascuna dimensione.<br>
@@ -807,29 +807,29 @@
                 <div class="canvas-container">
                     <canvas id="measureCanvas" width="600" height="400"></canvas>
                     <div class="ruler-controls">
-                        <div class="ruler-info" id="rulerInfo">📏 Clicca e trascina sul canvas per misurare</div>
+                        <div class="ruler-info" id="rulerInfo">📐 Clicca e trascina sul canvas per misurare</div>
                     </div>
                 </div>
             </div>
             
             <!-- Selettore Strumento di Misura -->
             <div class="instrument-selector">
-                <h3>🔧 Seleziona lo Strumento di Misura</h3>
+                <h3>🤚 Seleziona lo Strumento di Misura</h3>
                 <div class="instrument-options">
-                    <div class="instrument-card active" onclick="selectInstrument('metro')" id="inst-metro">
+                    <div class="instrument-card active" onclick="selectInstrument('righello')" id="inst-righello">
                         <div class="instrument-icon">📏</div>
+                        <div class="instrument-name">Righello Scolastico</div>
+                        <div class="instrument-precision">Precisione: ± 1 cm (2 decimali)</div>
+                    </div>
+                    <div class="instrument-card" onclick="selectInstrument('metro')" id="inst-metro">
+                        <div class="instrument-icon">♾️</div>
                         <div class="instrument-name">Metro a Nastro</div>
                         <div class="instrument-precision">Precisione: ± 1 mm (3 decimali)</div>
                     </div>
                     <div class="instrument-card" onclick="selectInstrument('calibro')" id="inst-calibro">
-                        <div class="instrument-icon">🔬</div>
-                        <div class="instrument-name">Calibro Ventesimale</div>
+                        <div class="instrument-icon">🗜️</div>
+                        <div class="instrument-name">Calibro</div>
                         <div class="instrument-precision">Precisione: ± 0.05 mm (5 decimali)</div>
-                    </div>
-                    <div class="instrument-card" onclick="selectInstrument('righello')" id="inst-righello">
-                        <div class="instrument-icon">📐</div>
-                        <div class="instrument-name">Righello Scolastico</div>
-                        <div class="instrument-precision">Precisione: ± 1 cm (2 decimali)</div>
                     </div>
                 </div>
             </div>
@@ -875,7 +875,7 @@
                             <span class="unit">m</span>
                         </div>
                         <div class="measurement-row">
-                            <label>Valore Attendibile:</label>
+                            <label>🖋️Valore Attendibile:</label>
                             <input type="number" step="0.001" id="dim1_va" placeholder="0.000">
                             <span class="unit">m</span>
                         </div>
@@ -912,7 +912,7 @@
                             <span class="unit">m</span>
                         </div>
                         <div class="measurement-row">
-                            <label>Valore Attendibile:</label>
+                            <label>🖋️Valore Attendibile:</label>
                             <input type="number" step="0.001" id="dim2_va" placeholder="0.000">
                             <span class="unit">m</span>
                         </div>
@@ -924,7 +924,7 @@
             <div class="measurement-box" style="margin-top: 30px;">
                 <h3>📊 Calcolo dell'Area</h3>
                 <div class="measurement-row" style="margin-top: 15px;">
-                    <label>Area calcolata:</label>
+                    <label>🖋️Area calcolata:</label>
                     <input type="number" step="0.0001" id="area_calculated" placeholder="0.0000">
                     <span class="unit">m²</span>
                 </div>
@@ -952,7 +952,7 @@
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📏 Salva la Misura</h3>
+                <h3>📥 Salva la Misura</h3>
             </div>
             
             <div class="modal-measure-display">
@@ -1003,21 +1003,21 @@
         const instruments = {
             metro: {
                 name: 'Metro a Nastro',
-                icon: '📏',
+                icon: '♾️',
                 precision: 3,
                 error: 0.001, // ±1mm
                 description: '± 1 mm'
             },
             calibro: {
-                name: 'Calibro Ventesimale',
-                icon: '🔬',
+                name: 'Calibro',
+                icon: '🗜️',
                 precision: 5,
                 error: 0.00005, // ±0.05mm
                 description: '± 0.05 mm'
             },
             righello: {
                 name: 'Righello Scolastico',
-                icon: '📐',
+                icon: '📏',
                 precision: 2,
                 error: 0.01, // ±1cm
                 description: '± 1 cm'
@@ -1551,8 +1551,8 @@
             ruler.endX = 0;
             ruler.endY = 0;
             
-            // Reset strumento a metro (default)
-            selectInstrument('metro');
+            // Reset strumento a default
+            selectInstrument('righello');
             
             // Reset info
             const instrument = instruments[currentInstrument];
